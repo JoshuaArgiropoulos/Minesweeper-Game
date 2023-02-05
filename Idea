@@ -1,0 +1,92 @@
+class Solution {
+    public void solution(int N, int[] R, int[] C) {
+
+
+        int printOrder[] = new int[N * N];
+        int placeHolder;
+        boolean bombs = false;
+        int proximity;
+
+
+        //Uses input to map the bombs to rows and columns. If there is a bomb, stores a -1. This will be used in calculating proximity from unoccupied spaces to bombs and for print statements.
+
+        //If there is a bomb, makes the bomb value true to be used in later logic.
+        for (int i = 0; i < R.length; i++) {
+            placeHolder = (R[i] * N) + C[i];
+            printOrder[placeHolder] = -1;
+            bombs = true;
+        }
+
+        //Algorithm to check proximity from bomb to unoccupied spaces. It checks all around the bomb with up to 8 spaces depending on size of field and location of unoccupied space.
+
+        for (int i = 0; i < N; i++) {
+            for (int x = 0; x < N; x++) {
+                proximity = 0;
+                int index = x + i * N;
+                if (printOrder[index] == -1) continue;
+                if (x > 0 && printOrder[index - 1] == -1) {
+                    proximity++;
+                }
+                if (x < N - 1 && printOrder[index + 1] == -1) {
+                    proximity++;
+                }
+                if (i > 0 && printOrder[index - N] == -1) {
+                    proximity++;
+                }
+                if (i < N - 1 && printOrder[index + N] == -1) {
+                    proximity++;
+                }
+                if (x > 0 && i > 0 && printOrder[index - N - 1] == -1) {
+                    proximity++;
+                }
+                if (x > 0 && i < N - 1 && printOrder[index + N - 1] == -1) {
+                    proximity++;
+                }
+                if (x < N - 1 && i > 0 && printOrder[index - N + 1] == -1) {
+                    proximity++;
+                }
+                if (x < N - 1 && i < N - 1 && printOrder[index + N + 1] == -1) {
+                    proximity++;
+                }
+                printOrder[index] = proximity;
+            }
+        }
+    //If 
+        if (!bombs) {
+            for (int i = 0; i < N; i++) {
+                for (int x = 0; x < N; x++) {
+                    System.out.print("0");
+                }
+                System.out.println();
+            }
+
+
+
+        } else {
+            for (int i = 0; i < N; i++) {
+                for (int x = 0; x < N; x++) {
+                    if (printOrder[x + i * N] == -1) {
+                        System.out.print("B");
+                    } else {
+                        System.out.print(printOrder[x + i * N]);
+                    }
+                }
+                System.out.println();
+            }
+        }
+    }
+}
+
+/*Example test:   (3, [2, 1, 0, 2], [0, 2, 1, 2])
+OK
+
+Example test:   (5, [2, 3, 2, 3, 1, 1, 3, 1], [3, 3, 1, 1, 1, 2, 2, 3])
+OK
+
+Example test:   (2, [], [])
+OK
+
+Your test case: [2, [], []]
+Output:
+00
+00*/
