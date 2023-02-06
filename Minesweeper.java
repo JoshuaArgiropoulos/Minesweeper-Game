@@ -11,12 +11,19 @@ public class Minesweeper {
     private int sizeOfField;
     private int numOfBombs;
     private int[]finalArray;
-    private int safeSlots;
     private int guessedSafeSlots;
-
-
+    private int numOfWins = 0;
     private boolean [] userGuessArray;
 
+    public void userLost(){
+        numOfWins = 0;
+    }
+    public void userWon(){
+        numOfWins++;
+    }
+    public int getUserWins(){
+        return numOfWins;
+    }
     public int getGuessedSafeSlots(){
         return guessedSafeSlots;
     }
@@ -274,14 +281,16 @@ public class Minesweeper {
     public void lost(){
         System.out.println("Game Over. You picked a bomb.");
         printMap();
-
+        
+        System.out.println("You finished with a "+ getUserWins()+" game winstreak.");
+        userLost();
         System.out.println("Enter \"yes\" if you would like to keep playing!");
         Scanner word = new Scanner(System.in);
 		String answer = word.nextLine();
 		//Obtains the users answer if they would like to keep playing
 		
 		if (answer.equals("yes")) {
-            
+            resetGame();
 			startGame();
 			//brings back to selection menu
 		}
@@ -296,7 +305,8 @@ public class Minesweeper {
     //screen if the user wins
     public void win(){
         System.out.println("Congrats!. You Win!.");
-
+        userWon();
+        System.out.println("You are on a "+ getUserWins()+" game winstreak!");
         printMap();
         System.out.println("Enter \"yes\" if you would like to keep playing!");
         Scanner word = new Scanner(System.in);
@@ -304,6 +314,7 @@ public class Minesweeper {
 		//Obtains the users answer if they would like to keep playing
 		
 		if (answer.equals("yes")) {
+            resetGame();
 			startGame();
 			//brings back to selection menu
 		}
@@ -314,7 +325,7 @@ public class Minesweeper {
     }
     
     public void userGuessingLoop(){
-        
+
         boolean bombPicked = false;
 
         while (!bombPicked && (getGuessedSafeSlots()<safeSlots())){
@@ -397,9 +408,10 @@ public class Minesweeper {
         emptyMap();
         createGuessTracker();
         userGuessingLoop();
-
-
-
+    }
+    public void resetGame() {
+        guessedSafeSlots = 0;
+        numOfGuesses = 0;
     }
     public static void main(String[] args) {
 		
