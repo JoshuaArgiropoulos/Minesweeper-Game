@@ -11,8 +11,22 @@ public class Minesweeper {
     private int sizeOfField;
     private int numOfBombs;
     private int[]finalArray;
+    private int safeSlots;
+    private int guessedSafeSlots;
+
 
     private boolean [] userGuessArray;
+
+    public int getGuessedSafeSlots(){
+        return guessedSafeSlots;
+    }
+    public void incrementGuessedSafeSlot(){
+        guessedSafeSlots++;
+    }
+    //Returns number of unoccipied areas in the game 
+    public int safeSlots(){
+        return(sizeOfField *sizeOfField -numOfBombs);
+    }
     //Returns the update user array of coords the user has guessed
     public boolean[]getUserGuesses(){
         return(userGuessArray);
@@ -54,19 +68,8 @@ public class Minesweeper {
     public void userGuessed(){
         numOfGuesses++;
     }
-//Accepts input of length of array, coords of bombs. R[] is the rows and C is the columns
-    public int[] createBombs(int[] coords) {
-        int []printOrder = new int[sizeOfField()*sizeOfField()];
-        for (int i = 0; i < coords.length; i++) {
-            
-            int index = coords[i];
 
-            printOrder[index] = -1;
-            
-        }
-        return (printOrder);
-    }
-//Uses input of field and num of bombs to create all the locations of the bombs that is unique
+
     public int[] bombCoords(){
 
     int areaOfField = sizeOfField() * sizeOfField();
@@ -185,7 +188,6 @@ public class Minesweeper {
     //Creates an array filled with false. Will be changed to true as the user guesses
     public void createGuessTracker(){
 
-
         int [] tempArray = finalArray();
 
         boolean []userGuess = new boolean[tempArray.length];
@@ -201,7 +203,7 @@ public class Minesweeper {
         System.out.println("Please input a number to select the row.");
         Scanner num = new Scanner(System.in);
 		int row = num.nextInt();
-        System.out.println("Please input a number to select the row.");
+        System.out.println("Please input a number to select the column.");
 		int col = num.nextInt();
         boolean running = true;
         int index = (row-1)*sizeOfField + (col-1);
@@ -209,11 +211,11 @@ public class Minesweeper {
 
         while (running) {
             //Ensure the users coords are within boundaries
-            if (index>(sizeOfField*sizeOfField) || index<0) {
+            if ((index>=sizeOfField*sizeOfField) || index<0) {
                 System.out.println("The coordinates selected are out of bounds. Please select numbers within the field.");
             }
             //Ensures the user hasnt picked the coords already
-            else if (GuessArray[index]= true) {
+            else if (GuessArray[index]== true) {
                 System.out.println("The coordinates have already been guessed. Please select new numbers.");
             }
             else {
@@ -221,7 +223,7 @@ public class Minesweeper {
             }
             System.out.println("Please input a number to select the row.");
             row = num.nextInt();
-            System.out.println("Please input a number to select the row.");
+            System.out.println("Please input a number to select the column.");
             col = num.nextInt();
             index = (row-1)*sizeOfField + (col-1);
         }
@@ -239,19 +241,19 @@ public class Minesweeper {
         boolean[]GuessArray = getUserGuesses(); 
         int[]finalArray = finalArray();
 
-        boolean bombPicked;
+        boolean bombPicked = false;
 
         for (int i = 0; i<sizeOfField;i++){
             for (int x = 0; x<sizeOfField;x++){
                 if (GuessArray[x+i*sizeOfField] && finalArray[x+i*sizeOfField]!= -1){
-                    System.out.print(finalArray[x+i*sizeOfField]);
+                    System.out.print("["+finalArray[x+i*sizeOfField]+"]");
                 }
-                else if (finalArray[x+i*sizeOfField] == -1) {
-                    System.out.print("B");
+                else if (finalArray[x+i*sizeOfField] == -1 && GuessArray[x+i*sizeOfField]) {
+                    System.out.print("[B]");
                     bombPicked =true;
                 }
                 else if (!GuessArray[x+i*sizeOfField]){
-                    System.out.print("[]");
+                    System.out.print("[ ]");
                 }
                 
             }
@@ -260,7 +262,9 @@ public class Minesweeper {
 
         
         
-
+        if (!bombPicked){
+            incrementGuessedSafeSlot();
+        }
         return(bombPicked);
 
 
@@ -276,6 +280,7 @@ public class Minesweeper {
 		//Obtains the users answer if they would like to keep playing
 		
 		if (answer.equals("yes")) {
+            
 			startGame();
 			//brings back to selection menu
 		}
@@ -308,15 +313,20 @@ public class Minesweeper {
     }
     
     public void userGuessingLoop(){
-        boolean bombPicked = false;
-        int guessesLeft = (sizeOfField()^2)-getGuess()-getBombs();
 
-        while (!bombPicked || (guessesLeft!=0 )){
+
+        boolean bombPicked = false;
+
+
+
+        int guessesLeft = (sizeOfField()*sizeOfField())-getGuess()-getBombs();
+
+        while ((!bombPicked && (guessesLeft>0)) && (getGuessedSafeSlots() < safeSlots() )){
             guessTracker();
 
             bombPicked = bombPicked();
 
-            guessesLeft = (sizeOfField()^2)-getGuess()-getBombs();
+            guessesLeft = (sizeOfField()^sizeOfField())-getGuess()-getBombs();
 
 
 
@@ -324,13 +334,14 @@ public class Minesweeper {
         if (bombPicked){
             lost();
         }
-        if (guessesLeft==0){
+        if (getGuessedSafeSlots() == safeSlots()){
             win();
         }
+
     }
     public void startGame() {
-        int sizeOfField;
-        int numOfBombs;
+        int sizeOfField = 0;
+        int numOfBombs = 0;
         System.out.println("Welcome to Minesweeper! Please input a number to select options.\n");
         
         System.out.println("Option 1. Easy\n Option 2. Medium\n Option 3. Difficult\n Option 4. Custom Difficulty");
@@ -392,8 +403,7 @@ public class Minesweeper {
         System.out.println("Good Luck!");
         
         int[] bombIndex = bombCoords();
-        int [] bombField = createBombs(bombIndex);
-        createField(bombField);
+        createField(bombIndex);
         emptyMap();
         createGuessTracker();
         userGuessingLoop();
