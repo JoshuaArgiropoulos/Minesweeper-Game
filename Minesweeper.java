@@ -68,54 +68,38 @@ public class Minesweeper {
     }
 //Uses input of field and num of bombs to create all the locations of the bombs that is unique
     public int[] bombCoords(){
-        Set<Integer> uniqueBombs = new HashSet<>();
-        Random rand = new Random();
 
-        while (uniqueBombs.size() < getBombs()) {
-            int randomNumber = rand.nextInt(sizeOfField()*sizeOfField());
-            uniqueBombs.add(randomNumber);
-        }
-        Integer[] bombIndex = uniqueBombs.toArray(new Integer[0]);
-        return(bombIndex);
+    int areaOfField = sizeOfField() * sizeOfField();
+
+
+    Set<Integer> uniqueBombs = new HashSet<>();
+    Random rand = new Random();
+
+    while (uniqueBombs.size() < getBombs()) {
+        int randomNumber = rand.nextInt(areaOfField);
+        uniqueBombs.add(randomNumber);
     }
+    Integer[] bombIndex = new Integer[uniqueBombs.size()];
+    uniqueBombs.toArray(bombIndex);
+
+    int [] intBombIndex = new int[areaOfField];
+    for (int i = 0; i < areaOfField; i++) {
+        intBombIndex[i] = 0;
+    }
+    for (int i = 0; i<bombIndex.length;i++){
+        intBombIndex[bombIndex[i]] = -1;
+    }
+
+    
+    return intBombIndex;
+    
+}
 //Setter and getter functions for the bomb varible
     public void setIsthereBombs(boolean setBombs){
         bombs = setBombs;
     }
     public boolean isBombs() {
         return(bombs);
-    }
-
-//Used to gather how many bombs are around a square. Inputs are the array of bombs and the square checking for surroundings
-    public int getProxitmity(int index) {
-        int [] printOrder = finalArray();
-        int proximity = 0;
-        int N = sizeOfField();
-        if (printOrder[index - 1] == -1) {
-                    proximity++;
-                }
-                if (printOrder[index + 1] == -1) {
-                    proximity++;
-                }
-                if (printOrder[index - N] == -1) {
-                    proximity++;
-                }
-                if (printOrder[index + N] == -1) {
-                    proximity++;
-                }
-                if (printOrder[index - N - 1] == -1) {
-                    proximity++;
-                }
-                if (printOrder[index + N - 1] == -1) {
-                    proximity++;
-                }
-                if (printOrder[index - N + 1] == -1) {
-                    proximity++;
-                }
-                if (printOrder[index + N + 1] == -1) {
-                    proximity++;
-                }
-                return proximity;
     }
 
     //Slightly different than the function above, used to create an array with both bombs and proximity numbers. T
@@ -157,7 +141,7 @@ public class Minesweeper {
             }
         }
 
-        setFinalArray(printOrder[]);
+        setFinalArray(printOrder);
         
     }
 
@@ -165,7 +149,7 @@ public class Minesweeper {
     public void printMap(){
         int N = sizeOfField();
         int [] printOrder = finalArray();
-        if (!getBombs()) {
+        if (getBombs()==0) {
             for (int i = 0; i < N; i++) {
                 for (int x = 0; x < N; x++) {
                     System.out.print("0");
@@ -185,10 +169,27 @@ public class Minesweeper {
             }
         }
     }
+    public void emptyMap(){
+        int N = sizeOfField();
+        
+        for (int i = 0; i < N; i++) {
+            for (int x = 0; x < N; x++) {
+                System.out.print("[]");
+                
+                
+                
+            }
+            System.out.print("\n"); 
+        }
+    }
     //Creates an array filled with false. Will be changed to true as the user guesses
     public void createGuessTracker(){
-        boolean []userGuess = new boolean[finalArray().size];
-        for (int i = 0; i<finalArray().size; i++){
+
+
+        int [] tempArray = finalArray();
+
+        boolean []userGuess = new boolean[tempArray.length];
+        for (int i = 0; i<tempArray.length; i++){
             userGuess[i] = false;
         }
         setUserGuesses(userGuess);
@@ -208,7 +209,7 @@ public class Minesweeper {
 
         while (running) {
             //Ensure the users coords are within boundaries
-            if (index>sizeOfField^2 || index<0) {
+            if (index>(sizeOfField*sizeOfField) || index<0) {
                 System.out.println("The coordinates selected are out of bounds. Please select numbers within the field.");
             }
             //Ensures the user hasnt picked the coords already
@@ -260,7 +261,7 @@ public class Minesweeper {
         
         
 
-        return(boomPicked);
+        return(bombPicked);
 
 
     }
@@ -320,6 +321,12 @@ public class Minesweeper {
 
 
         }
+        if (bombPicked){
+            lost();
+        }
+        if (guessesLeft==0){
+            win();
+        }
     }
     public void startGame() {
         int sizeOfField;
@@ -359,11 +366,11 @@ public class Minesweeper {
                     System.out.println("Please select a valid number. The number must be bewteen 2-50.");
 			        sizeOfField = num.nextInt();
                 }
-
-                System.out.println("Select the number of bombs.\n The number of bombs must be between 0-%d",(sizeOfField^2)-1);
+                int max = (sizeOfField*sizeOfField)-1;
+                System.out.println("Select the number of bombs.\n The number of bombs must be between 0-"+max+".");
                 numOfBombs = num.nextInt();
 
-                while ( numOfBombs< 0 || numOfBombs >(sizeOfField^2)-1) {
+                while ( numOfBombs< 0 || numOfBombs >(sizeOfField*sizeOfField)-1) {
                 System.out.println("Please select a valid number.");
 			    numOfBombs = num.nextInt();
                 }
@@ -387,6 +394,8 @@ public class Minesweeper {
         int[] bombIndex = bombCoords();
         int [] bombField = createBombs(bombIndex);
         createField(bombField);
+        emptyMap();
+        createGuessTracker();
         userGuessingLoop();
 
 
