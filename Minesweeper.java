@@ -72,20 +72,16 @@ public class Minesweeper {
         Random rand = new Random();
 
         while (uniqueBombs.size() < getBombs()) {
-            int randomNumber = rand.nextInt(sizeOfField()^2);
+            int randomNumber = rand.nextInt(sizeOfField()*sizeOfField());
             uniqueBombs.add(randomNumber);
         }
         Integer[] bombIndex = uniqueBombs.toArray(new Integer[0]);
         return(bombIndex);
     }
-    
-
-
-
 //Setter and getter functions for the bomb varible
     public void setIsthereBombs(boolean setBombs){
         bombs = setBombs;
-     }
+    }
     public boolean isBombs() {
         return(bombs);
     }
@@ -94,28 +90,29 @@ public class Minesweeper {
     public int getProxitmity(int index) {
         int [] printOrder = finalArray();
         int proximity = 0;
-        if (x > 0 && printOrder[index - 1] == -1) {
+        int N = sizeOfField();
+        if (printOrder[index - 1] == -1) {
                     proximity++;
                 }
-                if (x < N - 1 && printOrder[index + 1] == -1) {
+                if (printOrder[index + 1] == -1) {
                     proximity++;
                 }
-                if (i > 0 && printOrder[index - N] == -1) {
+                if (printOrder[index - N] == -1) {
                     proximity++;
                 }
-                if (i < N - 1 && printOrder[index + N] == -1) {
+                if (printOrder[index + N] == -1) {
                     proximity++;
                 }
-                if (x > 0 && i > 0 && printOrder[index - N - 1] == -1) {
+                if (printOrder[index - N - 1] == -1) {
                     proximity++;
                 }
-                if (x > 0 && i < N - 1 && printOrder[index + N - 1] == -1) {
+                if (printOrder[index + N - 1] == -1) {
                     proximity++;
                 }
-                if (x < N - 1 && i > 0 && printOrder[index - N + 1] == -1) {
+                if (printOrder[index - N + 1] == -1) {
                     proximity++;
                 }
-                if (x < N - 1 && i < N - 1 && printOrder[index + N + 1] == -1) {
+                if (printOrder[index + N + 1] == -1) {
                     proximity++;
                 }
                 return proximity;
@@ -124,6 +121,7 @@ public class Minesweeper {
     //Slightly different than the function above, used to create an array with both bombs and proximity numbers. T
     public void createField(int printOrder[]){
         int proximity;
+        int N = sizeOfField();
         //Goes through the array by going row by row
         for (int i = 0; i < N; i++) {
             for (int x = 0; x < N; x++) {
@@ -190,7 +188,7 @@ public class Minesweeper {
     //Creates an array filled with false. Will be changed to true as the user guesses
     public void createGuessTracker(){
         boolean []userGuess = new boolean[finalArray().size];
-        for (int i = 0, i<finalArray().size;i++){
+        for (int i = 0; i<finalArray().size; i++){
             userGuess[i] = false;
         }
         setUserGuesses(userGuess);
@@ -203,7 +201,6 @@ public class Minesweeper {
         Scanner num = new Scanner(System.in);
 		int row = num.nextInt();
         System.out.println("Please input a number to select the row.");
-        Scanner num = new Scanner(System.in);
 		int col = num.nextInt();
         boolean running = true;
         int index = (row-1)*sizeOfField + (col-1);
@@ -216,16 +213,16 @@ public class Minesweeper {
             }
             //Ensures the user hasnt picked the coords already
             else if (GuessArray[index]= true) {
-                System.out.println("The coordinates have already been guessed. Please select new numbers.")
+                System.out.println("The coordinates have already been guessed. Please select new numbers.");
             }
             else {
                 break;
             }
             System.out.println("Please input a number to select the row.");
-            int row = num.nextInt();
+            row = num.nextInt();
             System.out.println("Please input a number to select the row.");
-            int col = num.nextInt();
-            int index = (row-1)*sizeOfField + (col-1);
+            col = num.nextInt();
+            index = (row-1)*sizeOfField + (col-1);
         }
         GuessArray[index] = true;
 
@@ -244,9 +241,10 @@ public class Minesweeper {
         boolean bombPicked;
 
         for (int i = 0; i<sizeOfField;i++){
-            for (int x = 0, x<sizeOfField;x++){
+            for (int x = 0; x<sizeOfField;x++){
                 if (GuessArray[x+i*sizeOfField] && finalArray[x+i*sizeOfField]!= -1){
                     System.out.print(finalArray[x+i*sizeOfField]);
+                }
                 else if (finalArray[x+i*sizeOfField] == -1) {
                     System.out.print("B");
                     bombPicked =true;
@@ -254,7 +252,7 @@ public class Minesweeper {
                 else if (!GuessArray[x+i*sizeOfField]){
                     System.out.print("[]");
                 }
-                }
+                
             }
             System.out.println();
         }
@@ -269,6 +267,8 @@ public class Minesweeper {
     //Screen if the user loses.
     public void lost(){
         System.out.println("Game Over. You picked a bomb.");
+        printMap();
+
         System.out.println("Enter \"yes\" if you would like to keep playing!");
         Scanner word = new Scanner(System.in);
 		String answer = word.nextLine();
@@ -278,14 +278,19 @@ public class Minesweeper {
 			startGame();
 			//brings back to selection menu
 		}
-		else 
-			System.out.println("Thank you for playing!\n");
-			System.exit(0);
+		else {
+            System.out.println("Thank you for playing!\n");
+		    System.exit(0); 
         }
+			
+
+    
     }
     //screen if the user wins
     public void win(){
         System.out.println("Congrats!. You Win!.");
+
+        printMap();
         System.out.println("Enter \"yes\" if you would like to keep playing!");
         Scanner word = new Scanner(System.in);
 		String answer = word.nextLine();
@@ -295,17 +300,17 @@ public class Minesweeper {
 			startGame();
 			//brings back to selection menu
 		}
-		else 
+		else {
 			System.out.println("Thank you for playing!\n");
 			System.exit(0);
         }
     }
     
-    public userGuessingLoop(){
+    public void userGuessingLoop(){
         boolean bombPicked = false;
         int guessesLeft = (sizeOfField()^2)-getGuess()-getBombs();
 
-        while (!bombPicked || (guessesLeft!=0 ){
+        while (!bombPicked || (guessesLeft!=0 )){
             guessTracker();
 
             bombPicked = bombPicked();
@@ -318,7 +323,7 @@ public class Minesweeper {
     }
     public void startGame() {
         int sizeOfField;
-        int numOfBombs
+        int numOfBombs;
         System.out.println("Welcome to Minesweeper! Please input a number to select options.\n");
         
         System.out.println("Option 1. Easy\n Option 2. Medium\n Option 3. Difficult\n Option 4. Custom Difficulty");
@@ -356,7 +361,7 @@ public class Minesweeper {
                 }
 
                 System.out.println("Select the number of bombs.\n The number of bombs must be between 0-%d",(sizeOfField^2)-1);
-                int numOfBombs = num.nextInt();
+                numOfBombs = num.nextInt();
 
                 while ( numOfBombs< 0 || numOfBombs >(sizeOfField^2)-1) {
                 System.out.println("Please select a valid number.");
@@ -369,6 +374,11 @@ public class Minesweeper {
         }
         setSizeOfField(sizeOfField);
         setBombs(numOfBombs);
+        if (numOfBombs!=0) {
+            setIsthereBombs(true);
+        }
+        else setIsthereBombs(false);
+
         playGame();
     }
     public void playGame(){
@@ -377,14 +387,20 @@ public class Minesweeper {
         int[] bombIndex = bombCoords();
         int [] bombField = createBombs(bombIndex);
         createField(bombField);
+        userGuessingLoop();
 
 
 
     }
+    public static void main(String[] args) {
+		
+	
+        Minesweeper newGame = new Minesweeper();
+        newGame.startGame();
+        //Starts game
+	}
 
 
 }
-
-
 
 
