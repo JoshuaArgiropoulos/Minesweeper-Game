@@ -152,10 +152,11 @@ public class Minesweeper {
     public void printMap(){
         int N = sizeOfField();
         int [] printOrder = finalArray();
+        System.out.println("Here is the completed field.");
         if (getBombs()==0) {
             for (int i = 0; i < N; i++) {
                 for (int x = 0; x < N; x++) {
-                    System.out.print("0");
+                    System.out.print("[0]");
                 }
                 System.out.println();
             }
@@ -163,9 +164,9 @@ public class Minesweeper {
             for (int i = 0; i < N; i++) {
                 for (int x = 0; x < N; x++) {
                     if (printOrder[x + i * N] == -1) {
-                        System.out.print("B");
+                        System.out.print("[B]");
                     } else {
-                        System.out.print(printOrder[x + i * N]);
+                        System.out.print("["+printOrder[x + i * N]+"]");
                     }
                 }
                 System.out.println();
@@ -313,23 +314,12 @@ public class Minesweeper {
     }
     
     public void userGuessingLoop(){
-
-
+        
         boolean bombPicked = false;
 
-
-
-        int guessesLeft = (sizeOfField()*sizeOfField())-getGuess()-getBombs();
-
-        while ((!bombPicked && (guessesLeft>0)) && (getGuessedSafeSlots() < safeSlots() )){
+        while (!bombPicked && (getGuessedSafeSlots()<safeSlots())){
             guessTracker();
-
             bombPicked = bombPicked();
-
-            guessesLeft = (sizeOfField()^sizeOfField())-getGuess()-getBombs();
-
-
-
         }
         if (bombPicked){
             lost();
@@ -344,7 +334,7 @@ public class Minesweeper {
         int numOfBombs = 0;
         System.out.println("Welcome to Minesweeper! Please input a number to select options.\n");
         
-        System.out.println("Option 1. Easy\n Option 2. Medium\n Option 3. Difficult\n Option 4. Custom Difficulty");
+        System.out.println("Option 1. Easy\nOption 2. Medium\nOption 3. Difficult\nOption 4. Custom Difficulty");
 
         Scanner num = new Scanner(System.in);
 		int ID = num.nextInt();
