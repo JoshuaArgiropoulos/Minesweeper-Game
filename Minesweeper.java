@@ -1,8 +1,6 @@
 import java.util.Scanner;
 import java.util.Random;
-
 import java.util.HashSet;
-
 import java.util.Set;
 
 public class Minesweeper {
@@ -15,18 +13,32 @@ public class Minesweeper {
     private int numOfWins = 0;
     private boolean [] userGuessArray;
 
+
+    //Setter and getter functions for the bomb variable
+    public void setIsthereBombs(boolean setBombs){
+        bombs = setBombs;
+    }
+    //returns if there are bombs in the field
+    public boolean isBombs() {
+        return(bombs);
+    }
+    //Used to reset the users win streak
     public void userLost(){
         numOfWins = 0;
     }
+    //Used to increment the users wins. This is used to display the users new winstreak at the end of the game.
     public void userWon(){
         numOfWins++;
     }
+    //Used to display the users winstreak. 
     public int getUserWins(){
         return numOfWins;
     }
+    //Used to return the number of unoccupied sqaures the user has guessed. 
     public int getGuessedSafeSlots(){
         return guessedSafeSlots;
     }
+    //Used after the user guesses a safe square. Used to calculate the amount of squares the user must guess to win the level
     public void incrementGuessedSafeSlot(){
         guessedSafeSlots++;
     }
@@ -76,7 +88,7 @@ public class Minesweeper {
         numOfGuesses++;
     }
 
-
+//Used to generate an array with either 0's or -1's. The 0s repersent an unoccupied square and the -1's repersent where a bomb is located. This will be used with createField() to create the field
     public int[] bombCoords(){
 
     int areaOfField = sizeOfField() * sizeOfField();
@@ -84,35 +96,30 @@ public class Minesweeper {
 
     Set<Integer> uniqueBombs = new HashSet<>();
     Random rand = new Random();
-
+    //Generates the coordinates of the bombs in the arena. Ensures the bomb coords are less than the size of the area and are unique numbers
     while (uniqueBombs.size() < getBombs()) {
         int randomNumber = rand.nextInt(areaOfField);
         uniqueBombs.add(randomNumber);
     }
+    
     Integer[] bombIndex = new Integer[uniqueBombs.size()];
     uniqueBombs.toArray(bombIndex);
-
+    //Goes through the entire array and sets nums to 0
     int [] intBombIndex = new int[areaOfField];
     for (int i = 0; i < areaOfField; i++) {
         intBombIndex[i] = 0;
     }
+    //Goes through the bomb coords array and the output of the first array will be equal to the index of the final array for the bomb location
     for (int i = 0; i<bombIndex.length;i++){
         intBombIndex[bombIndex[i]] = -1;
     }
 
-    
+    //Returns the array of 0's and -1's
     return intBombIndex;
     
 }
-//Setter and getter functions for the bomb varible
-    public void setIsthereBombs(boolean setBombs){
-        bombs = setBombs;
-    }
-    public boolean isBombs() {
-        return(bombs);
-    }
 
-    //Slightly different than the function above, used to create an array with both bombs and proximity numbers. T
+    //Slightly different than the function above, used to create an array with both bombs (being -1) and proximity numbers. The proximity numbers are in unoccupied squares and are the sum of surrounding bombs
     public void createField(int printOrder[]){
         int proximity;
         int N = sizeOfField();
@@ -121,7 +128,9 @@ public class Minesweeper {
             for (int x = 0; x < N; x++) {
                 //Resets proximity after each unoccupied postion 
                 proximity = 0;
+                //Index is calculated by the (rows * length of the row) + column number
                 int index = x + i * N;
+                //Sums the surrounding bombs
                 if (printOrder[index] == -1) continue;
                 if (x > 0 && printOrder[index - 1] == -1) {
                     proximity++;
@@ -150,7 +159,7 @@ public class Minesweeper {
                 printOrder[index] = proximity;
             }
         }
-
+        //Sets the final array into the private variable
         setFinalArray(printOrder);
         
     }
@@ -160,6 +169,7 @@ public class Minesweeper {
         int N = sizeOfField();
         int [] printOrder = finalArray();
         System.out.println("Here is the completed field.");
+        //If there are no bombs, prints a map of 0s
         if (getBombs()==0) {
             for (int i = 0; i < N; i++) {
                 for (int x = 0; x < N; x++) {
@@ -167,6 +177,7 @@ public class Minesweeper {
                 }
                 System.out.println();
             }
+            //If there are bombs, prints B where there are bombs, and prints proximity to bombs for everywhere else
         } else {
             for (int i = 0; i < N; i++) {
                 for (int x = 0; x < N; x++) {
@@ -180,12 +191,13 @@ public class Minesweeper {
             }
         }
     }
+//Prints an empty map with only [ ] to indict the user has no selected any squares 
     public void emptyMap(){
         int N = sizeOfField();
         
         for (int i = 0; i < N; i++) {
             for (int x = 0; x < N; x++) {
-                System.out.print("[]");
+                System.out.print("[ ]");
                 
                 
                 
@@ -193,7 +205,7 @@ public class Minesweeper {
             System.out.print("\n"); 
         }
     }
-    //Creates an array filled with false. Will be changed to true as the user guesses
+    //Creates an array filled with false boolean logic. Will be changed to true as the user guesses
     public void createGuessTracker(){
 
         int [] tempArray = finalArray();
@@ -207,7 +219,9 @@ public class Minesweeper {
     //Keeps track of the users guesses. 
     public void guessTracker(){
         int sizeOfField = sizeOfField();
+        //Gets the users current guess chart
         boolean []GuessArray = getUserGuesses();
+        //Asks the user to select a row and column 
         System.out.println("Please input a number to select the row.");
         Scanner num = new Scanner(System.in);
 		int row = num.nextInt();
@@ -229,17 +243,20 @@ public class Minesweeper {
             else {
                 break;
             }
+            //Keeps asking the user until they select proper coordinates 
             System.out.println("Please input a number to select the row.");
             row = num.nextInt();
             System.out.println("Please input a number to select the column.");
             col = num.nextInt();
             index = (row-1)*sizeOfField + (col-1);
+            //Updates the new index num
         }
+        //When the users guess is valid, updates the users guess array 
         GuessArray[index] = true;
 
         //Calls user guessed to add 1 to guesses and setUserGuesses to update guess array
         userGuessed();
-
+        //Stores the user guess array
         setUserGuesses(GuessArray);
     }
     //Checks the users guesses to see if a bomb was picked. 
@@ -253,48 +270,61 @@ public class Minesweeper {
 
         for (int i = 0; i<sizeOfField;i++){
             for (int x = 0; x<sizeOfField;x++){
+                //Checks if the user has guessed the coordinates and if there is NOT a bomb. If there user has guessed and there is no bomb. Displays the proximity 
                 if (GuessArray[x+i*sizeOfField] && finalArray[x+i*sizeOfField]!= -1){
                     System.out.print("["+finalArray[x+i*sizeOfField]+"]");
                 }
+                //If the user has guessed and there is a bomb. Displays [B] and sets bombPicked to true
                 else if (finalArray[x+i*sizeOfField] == -1 && GuessArray[x+i*sizeOfField]) {
                     System.out.print("[B]");
                     bombPicked =true;
                 }
+                //If there user has not guessed the square, returns a blank square
                 else if (!GuessArray[x+i*sizeOfField]){
                     System.out.print("[ ]");
                 }
                 
             }
             System.out.println();
+            //Prints a new line for visuals
         }
 
-        
+        //If bomb is NOT picked, increases the number of guessed safe squares to calculate guesses left
         
         if (!bombPicked){
             incrementGuessedSafeSlot();
         }
+        //Returns if the user picked a bomb or not
         return(bombPicked);
 
 
     }
     //Screen if the user loses.
     public void lost(){
+        //Displays defeat screen
         System.out.println("Game Over. You picked a bomb.");
+        //Prints complete map and uncovered map
         printMap();
-        
+        //Displays the users winstreak before the lose
         System.out.println("You finished with a "+ getUserWins()+" game winstreak.");
+        //Clears winstreak
         userLost();
+
+        //Asks the user if they would like to continue playing 
+
         System.out.println("Enter \"yes\" if you would like to keep playing!");
         Scanner word = new Scanner(System.in);
 		String answer = word.nextLine();
 		//Obtains the users answer if they would like to keep playing
 		
 		if (answer.equals("yes")) {
+            //Clears users guesses and restarts the game as new
             resetGame();
 			startGame();
-			//brings back to selection menu
+			
 		}
 		else {
+            //if not, closes the game
             System.out.println("Thank you for playing!\n");
 		    System.exit(0); 
         }
@@ -304,9 +334,13 @@ public class Minesweeper {
     }
     //screen if the user wins
     public void win(){
+        //displays victory screen
         System.out.println("Congrats!. You Win!.");
+        //Increments user wins
         userWon();
+        //displays user winstreak and says its current unlike lose screen
         System.out.println("You are on a "+ getUserWins()+" game winstreak!");
+        //prints an uncovered and completed map
         printMap();
         System.out.println("Enter \"yes\" if you would like to keep playing!");
         Scanner word = new Scanner(System.in);
@@ -314,9 +348,11 @@ public class Minesweeper {
 		//Obtains the users answer if they would like to keep playing
 		
 		if (answer.equals("yes")) {
+
+            //Restarts the game and guesses but keeps the winstreak unlike the lose screen
             resetGame();
 			startGame();
-			//brings back to selection menu
+			
 		}
 		else {
 			System.out.println("Thank you for playing!\n");
@@ -325,13 +361,16 @@ public class Minesweeper {
     }
     
     public void userGuessingLoop(){
-
+        //Bomb is false or game would be over
         boolean bombPicked = false;
-
+        //While bomb is not picked and more safe spots can be picked, the user must continue playing
         while (!bombPicked && (getGuessedSafeSlots()<safeSlots())){
+            //Makes the user pick a square in the field that was not already picked
             guessTracker();
+            //Checks if the square has a bomb
             bombPicked = bombPicked();
         }
+        //Depending if the user picked a bomb or ran out of safe squares, 
         if (bombPicked){
             lost();
         }
@@ -343,6 +382,7 @@ public class Minesweeper {
     public void startGame() {
         int sizeOfField = 0;
         int numOfBombs = 0;
+        //intro message
         System.out.println("Welcome to Minesweeper! Please input a number to select options.\n");
         
         System.out.println("Option 1. Easy\nOption 2. Medium\nOption 3. Difficult\nOption 4. Custom Difficulty");
@@ -354,7 +394,7 @@ public class Minesweeper {
             System.out.println("Please select a valid number.");
 			    ID = num.nextInt();
         }
-        //If the user selects custom difficulty
+        //Options of which level the user is playing. 1 = easy, 2 = medium and 3 = difficult. 4 = custom diificulty 
 
         switch(ID){
             case(1):
@@ -371,7 +411,8 @@ public class Minesweeper {
 
                 break;
             case(4):
-                System.out.println("Select the length of the field.\n The field is a square and the length must be between 2-50.");
+            //Forces user to select a number within bounds of size and number of bombs
+                System.out.println("Select the length of the field.\nThe field is a square and the length must be between 2-50.");
 
                 sizeOfField = num.nextInt();
                 while (sizeOfField<2 || sizeOfField>50) {
@@ -379,7 +420,7 @@ public class Minesweeper {
 			        sizeOfField = num.nextInt();
                 }
                 int max = (sizeOfField*sizeOfField)-1;
-                System.out.println("Select the number of bombs.\n The number of bombs must be between 0-"+max+".");
+                System.out.println("Select the number of bombs.\nThe number of bombs must be between 0-"+max+".");
                 numOfBombs = num.nextInt();
 
                 while ( numOfBombs< 0 || numOfBombs >(sizeOfField*sizeOfField)-1) {
@@ -391,24 +432,29 @@ public class Minesweeper {
         
 
         }
+        //Sets all the important info to be used by other functions later
         setSizeOfField(sizeOfField);
         setBombs(numOfBombs);
+
         if (numOfBombs!=0) {
             setIsthereBombs(true);
         }
         else setIsthereBombs(false);
-
+        //Starts game
         playGame();
     }
     public void playGame(){
         System.out.println("Good Luck!");
+        //Displays a good luck and creates the map, bomb coords, and guess tracker. Also displays an empty map
         
         int[] bombIndex = bombCoords();
         createField(bombIndex);
         emptyMap();
         createGuessTracker();
+        //User begins to guess squares
         userGuessingLoop();
     }
+    //Restarts user guesses and safeslots left
     public void resetGame() {
         guessedSafeSlots = 0;
         numOfGuesses = 0;
